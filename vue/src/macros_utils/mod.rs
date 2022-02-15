@@ -1,9 +1,7 @@
-mod create_config;
 mod reactive_drop;
-mod reactive_fut;
+mod reactive_loop;
 mod reactive_ty;
 
-pub use create_config::CreateConfig;
 pub use reactive_drop::ReactiveDrop;
-pub use reactive_fut::reactive_fut;
+pub use reactive_loop::reactive_loop;
 pub use reactive_ty::ReactiveTy;

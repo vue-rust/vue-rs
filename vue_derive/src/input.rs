@@ -31,14 +31,14 @@ impl<'a> Input<'a> {
         LitStr::new(&self.ident.to_string(), self.ident.span())
     }
 
-    pub fn js_create_ident(&self) -> Ident {
+    pub fn js_props_ident(&self) -> Ident {
         let ident = self.ident.to_string().to_snake_case();
-        Ident::new(&format!("js_{ident}_create"), self.ident.span())
+        Ident::new(&format!("js_{ident}_props"), self.ident.span())
     }
 
-    pub fn js_create_name_lit(&self) -> LitStr {
+    pub fn js_props_lit(&self) -> LitStr {
         let ident = self.ident.to_string().to_lower_camel_case();
-        LitStr::new(&format!("{ident}Create"), self.ident.span())
+        LitStr::new(&format!("{ident}Props"), self.ident.span())
     }
 
     pub fn reactive_ident(&self) -> Ident {

@@ -1,3 +1,4 @@
+mod future_exec;
 #[doc(hidden)]
 pub mod macros_utils;
 mod reactive;
@@ -5,7 +6,7 @@ mod utils;
 
 pub use reactive::Reactive;
 #[cfg(feature = "derive")]
-pub use vue_derive::Vue;
+pub use vue_derive::{methods, Vue};
 use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global

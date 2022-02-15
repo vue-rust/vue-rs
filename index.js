@@ -2,48 +2,58 @@ import Vue from 'vue'
 
 let id = 0;
 
-export default function (type, options) {
+export default function (type, getProps, getMethods) {
     id += 1;
 
-    const key = '!rs' + id;
+    const rust = '!rs' + id;
 
     const watch = {}
     const computed = {}
+    const methods = {};
+    const props = getProps()
 
-    options
-        .props
+    props
         .forEach(p => {
             computed['c' + p] = {
                 get () { return this['d' + p] },
-                set (v) { this[key][p] = v }
+                set (v) { this[rust][p] = v }
             }
 
             watch[p] = {
                 deep: true,
-                handler (n) { this[key][p] = n },
+                handler (n) { this[rust][p] = n },
             }
         })
 
+    if (getMethods) {
+        getMethods.forEach(a => {
+            methods[a[0]] = function () {
+                this[rust][a].apply(this[rust], arguments)
+            }
+        })
+    }
+
     return {
         activated () {
-            this[key].componentActive = true
+            this[rust].componentActive = true
         },
         beforeDestroy () {
-            this[key].componentActive = false
-            this[key].free()
+            this[rust].componentActive = false
+            this[rust].free()
         },
         computed,
         data () {
-            return { [key]: type }
+            return { [rust]: type() }
         },
         deactivated () {
-            this[key].componentActive = false
+            this[rust].componentActive = false
         },
+        methods,
         mounted () {
-            this[key].data = this
-            this[key].componentActive = true
+            this[rust].data = this
+            this[rust].componentActive = true
         },
-        props: options.props,
+        props,
         watch
     }
 };

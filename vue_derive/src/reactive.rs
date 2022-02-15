@@ -26,10 +26,12 @@ pub(crate) fn generate(input: &Input) -> TokenStream {
                 self.0.map(map)
             }
 
+            #[doc(hidden)]
             pub fn macro_set_active(&mut self, value: bool) {
                 self.0.macro_set_active(value);
             }
 
+            #[doc(hidden)]
             pub fn macro_set_target(&mut self, target: wasm_bindgen::JsValue) {
                 self.0.macro_set_target(target);
             }

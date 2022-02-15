@@ -12,6 +12,10 @@ impl<P> Reactive<P> {
         Self(Default::default())
     }
 
+    pub(crate) fn changed(&self) -> bool {
+        self.map_inner(|inner| inner.changed)
+    }
+
     pub(crate) fn dropped(&self) -> bool {
         self.map_inner(|inner| inner.dropped)
     }
@@ -26,6 +30,7 @@ impl<P> Reactive<P> {
             set(
                 setter(&mut inner.props),
                 value,
+                &mut inner.changed,
                 &inner.target,
                 key,
                 rty,
@@ -38,6 +43,7 @@ impl<P> Reactive<P> {
     pub fn macro_set_active(&self, value: bool) {
         self.map_inner(|inner| {
             if replace(&mut inner.active, value) != value && value {
+                inner.changed = true;
                 wake(&mut inner.waker);
             }
         });
@@ -45,7 +51,11 @@ impl<P> Reactive<P> {
 
     #[doc(hidden)]
     pub fn macro_set_target(&self, target: JsValue) {
-        self.map_inner(|inner| inner.target = target);
+        self.map_inner(|inner| {
+            inner.changed = true;
+            inner.target = target;
+            wake(&mut inner.waker);
+        });
     }
 
     pub fn map<M, R>(&mut self, mapper: M) -> R
@@ -73,7 +83,10 @@ impl<P> Reactive<P> {
     }
 
     pub(crate) fn set_waker(&self, waker: Waker) {
-        self.map_inner(|inner| inner.waker = Some(waker));
+        self.map_inner(|inner| {
+            inner.changed = false;
+            inner.waker = Some(waker);
+        });
     }
 }
 
@@ -85,6 +98,7 @@ impl<P> Clone for Reactive<P> {
 
 struct Inner<P> {
     active: bool,
+    changed: bool,
     dropped: bool,
     props: P,
     target: JsValue,
@@ -102,6 +116,7 @@ impl<P> Drop for Inner<P> {
 fn set<T>(
     dst: &mut T,
     value: T,
+    changed: &mut bool,
     target: &JsValue,
     key: &str,
     rty: ReactiveTy,
@@ -111,6 +126,7 @@ fn set<T>(
 {
     if *dst != value {
         *dst = value;
+        *changed = true;
         wake(waker);
         update_vue(target, dst.clone().into(), key, rty);
     }

@@ -24,7 +24,7 @@ pub(crate) fn generate(input: &Input) -> TokenStream {
             #[wasm_bindgen(constructor)]
             pub fn new() -> Self {
                 let reactive = vue::Reactive::<#ident>::new();
-                vue::macros_utils::reactive_fut(#update_fn(#reactive(reactive.clone())), reactive.clone());
+                vue::macros_utils::reactive_loop(|r| #update_fn(#reactive(r)), reactive.clone());
                 Self(#reactive(reactive.clone()), vue::macros_utils::ReactiveDrop(reactive))
             }
 
